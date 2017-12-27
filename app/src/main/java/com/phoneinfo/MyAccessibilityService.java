@@ -17,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
 
+import static com.phoneinfo.Utils.execShellCmd;
+
 /**
  * Created by xiejingbao on 2017/12/15.
  */
@@ -44,7 +46,7 @@ public class MyAccessibilityService extends AccessibilityService {
      * 我的那些属性写在xml里了。
      */
     @Override
-    public void onAccessibilityEvent(AccessibilityEvent event) {
+    public void onAccessibilityEvent(final AccessibilityEvent event) {
         /**
          * 事件是分很多种的，我这里是最简单的那种，只演示核心功能，如果要做成业务上线 这里推荐一个方法可以快速理解这里的type属性。
          * 把这个type的int 值取出来 并转成16进制，然后去AccessibilityEvent 源码里find。顺便看注释 ，这样是迅速理解type类型的方法
@@ -73,8 +75,8 @@ public class MyAccessibilityService extends AccessibilityService {
                             @Override
                             public void accept(Long aLong) throws Exception {
                                 LogManager.e("延迟执行");
-                                Utils.execShellCmd("input tap 360 360");
-                                Utils.execShellCmd("input tap 367 480");
+                                execShellCmd("input tap 360 360");
+                                execShellCmd("input tap 367 480");
                             }
                         });
                     }
@@ -83,15 +85,22 @@ public class MyAccessibilityService extends AccessibilityService {
                     DisplayMetrics dm = resources.getDisplayMetrics();
                     final int width = dm.widthPixels;
                     final int height = dm.heightPixels;
-                    if("com.xy.MainActivity".equals(event.getClassName())){
+                    if("com.rrit.wmn.doplfk".equals(event.getClassName())){
                         Observable.timer(2, TimeUnit.SECONDS).subscribe(new Consumer<Long>() {
                             @Override
                             public void accept(Long aLong) throws Exception {
                                 LogManager.e("MainActivity延迟执行");
-                                Utils.execShellCmd("input tap "+width/2+" "+height/2);
+                                    Utils.execShellCmd("input tap " + width / 2 + " " + height / 2);
+                            }
+                        }, new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Exception {
+                                LogManager.e("su---error");
+                                performClick();
                             }
                         });
                     }
+
 
                 }
                 break;
@@ -149,7 +158,7 @@ public class MyAccessibilityService extends AccessibilityService {
 
        }
     //执行点击
-    public  void performClick(String resourceId) {
+    public  void performClick() {
 
         LogManager.e("点击执行");
 
