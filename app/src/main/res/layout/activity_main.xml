@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.phoneinfo.MainActivity">
+  <LinearLayout
+      android:orientation="vertical"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/tv"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+      />
+    <LinearLayout
+        android:visibility="gone"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+    <android.support.v7.widget.AppCompatEditText
+        android:id="@+id/ed_index"
+        android:layout_width="200dp"
+        android:layout_height="48dp" />
+      <Button
+          android:id="@+id/bt_in_save"
+          android:layout_marginLeft="16dp"
+          android:text="保存"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:visibility="gone"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+      <android.support.v7.widget.AppCompatEditText
+          android:id="@+id/ed_install"
+          android:layout_width="200dp"
+          android:layout_height="48dp" />
+      <Button
+          android:id="@+id/bt_install_save"
+          android:layout_marginLeft="16dp"
+          android:text="install保存"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content" />
+    </LinearLayout>
+    <LinearLayout
+        android:visibility="gone"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+      <android.support.v7.widget.AppCompatEditText
+          android:id="@+id/ed_main"
+          android:layout_width="200dp"
+          android:layout_height="48dp" />
+      <Button
+          android:id="@+id/bt_main_save"
+          android:layout_marginLeft="16dp"
+          android:text="主页保存"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content" />
+    </LinearLayout>
+    <Button
+        android:visibility="gone"
+        android:text="执行"
+        android:id="@+id/bt_ex"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Button
+        android:text="开启"
+        android:id="@+id/open"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+  </LinearLayout>
+</ScrollView>
