@@ -17,8 +17,6 @@ import java.util.concurrent.TimeUnit;
 import io.reactivex.Observable;
 import io.reactivex.functions.Consumer;
 
-import static com.phoneinfo.Utils.execShellCmd;
-
 /**
  * Created by xiejingbao on 2017/12/15.
  */
@@ -75,8 +73,13 @@ public class MyAccessibilityService extends AccessibilityService {
                             @Override
                             public void accept(Long aLong) throws Exception {
                                 LogManager.e("延迟执行");
-                                execShellCmd("input tap 360 360");
-                                execShellCmd("input tap 367 480");
+                                Utils.execShellCmd("input tap 360 360");
+                                Utils.execShellCmd("input tap 367 480");
+                            }
+                        }, new Consumer<Throwable>() {
+                            @Override
+                            public void accept(Throwable throwable) throws Exception {
+                                LogManager.e("welcome---click--error-");
                             }
                         });
                     }
