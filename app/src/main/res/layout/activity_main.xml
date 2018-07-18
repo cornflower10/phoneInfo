@@ -76,5 +76,10 @@
         android:id="@+id/open"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+    <Button
+        android:text="卸载"
+        android:id="@+id/uninstall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
   </LinearLayout>
 </ScrollView>

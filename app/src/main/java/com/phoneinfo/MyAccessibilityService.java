@@ -36,7 +36,8 @@ public class MyAccessibilityService extends AccessibilityService {
         super.onServiceConnected();
         LogManager.e("connect--------");
         EventBus.getDefault().register(this);
-//        EventBus.getDefault().post(new Message("开启成功"));
+        EventBus.getDefault().post(new Message(""));
+
     }
 
     /**
@@ -54,7 +55,12 @@ public class MyAccessibilityService extends AccessibilityService {
         LogManager.e("event.source"+event.getSource());
         final int eventType = event.getEventType();
         LogManager.e(eventType+"---eventType---");
-
+        if("com.look.xy".equals(event.getPackageName())) {
+//            EventBus.getDefault().post(new Message("开启成功",event));
+//                if("android.app.Notification".equals(event.getClassName())){
+//                    EventBus.getDefault().post(new Message(""));
+//            }
+        }
         switch (eventType) {
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
                 //这个地方没什么好说的 你就理解成 找到当前界面 包含有安装 这个关键词的 所有节点就可以了。返回这些节点的list
@@ -62,13 +68,22 @@ public class MyAccessibilityService extends AccessibilityService {
                 //除了有根据Text找节点的方法 还有根据Id找节点的方法。考虑到众多手机rom都不一样，这里需要大家多测试一下，有的rom packageInstall
                 //定制的比较深入，可能和官方rom里差的很远 这里就要做冗余处理，可以告诉大家一个小技巧 你就把这些rom的 安装器打开 然后
                 //通过ddms里 看view结构的按钮 直接进去看就行了，可以直接看到那个界面属于哪个包名，也可以看到你要捕获的那个按钮的id是什么 很方便！
-                if("com.android.packageinstaller".equals(event.getPackageName())){
+
+
+                if("com.android.packageinstaller".equals(event.getPackageName())
+                        ||"com.mini.packageinstaller".equals(event.getPackageName())){
                     findByTextAndClick(event.getSource(),"下一步");
                     findByTextAndClick(event.getSource(),"安装");
+                    findByTextAndClick(event.getSource(),"继续安装");
                     findByTextAndClick(event.getSource(),"完成");
 
-                }else if("com.look.xy".equals(event.getSource().getPackageName())){
+                }
+
+
+                    else if("com.look.xy".equals(event.getSource().getPackageName())){
                     if("com.xy.WelcomeActivity".equals(event.getClassName())){
+                        findByTextAndClick(event.getSource(),"继续安装");
+                        findByTextAndClick(event.getSource(),"安装");
                         Observable.timer(1, TimeUnit.SECONDS).subscribe(new Consumer<Long>() {
                             @Override
                             public void accept(Long aLong) throws Exception {
@@ -112,9 +127,30 @@ public class MyAccessibilityService extends AccessibilityService {
         }
     }
 
+
+    public boolean  findByText(String str){
+        LogManager.e("str"+str);
+        boolean isFind = false;
+        List<AccessibilityNodeInfo> list = this.getRootInActiveWindow().findAccessibilityNodeInfosByText(str);
+        if (null!=list&&list.size()>0){
+            for (AccessibilityNodeInfo info : list) {
+                LogManager.e("info"+info.getText()+"");
+                if (info.getText().toString().equals(str))
+                {
+                    isFind = true;
+                }
+            }
+        }else{
+            LogManager.e(str+"：未找到");
+           return  isFind =false;
+        }
+        return isFind;
+    }
+
   public void   findByTextAndClick(AccessibilityNodeInfo nodeInfo,String str){
+        LogManager.e("str"+str);
       List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByText(str);
-      if (null!=list){
+      if (null!=list&&list.size()>0){
           for (AccessibilityNodeInfo info : list) {
               LogManager.e("info"+info.getText()+"");
               if (info.getText().toString().equals(str))
@@ -134,8 +170,44 @@ public class MyAccessibilityService extends AccessibilityService {
 
     }
 
+
+    private void excu(){
+        Observable.interval(10, TimeUnit.SECONDS).subscribe(new Consumer<Long>() {
+            @Override
+            public void accept(Long aLong) throws Exception {
+                LogManager.e("onMessageEvent");
+                if(findByText("允许")&&findByText("拒绝")){
+                    LogManager.e("拒绝");
+                    performClickXiaomi("拒绝");
+                }
+
+                else if(findByText("打开")&&findByText("完成")){
+                    LogManager.e("完成");
+                    performClickXiaomi("完成");
+                }
+
+                else{
+                    performClickXiaomi("下一步");
+                    performClickXiaomi("安装");
+                    performClickXiaomi("继续安装");
+                    performClickXiaomi("完成");
+                }
+
+            }
+        }, new Consumer<Throwable>() {
+            @Override
+            public void accept(Throwable throwable) throws Exception {
+                LogManager.e("onMessageEvent---error"+throwable.getMessage());
+                excu();
+            }
+        });
+    }
+
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(Message msg) {
+    public void onMessageEvent(final Message msg) {
+
+        excu();
+
 //        if("youmi".equals(msg.getMsg())){
 //            LogManager.e("start---youmi");
 //            youmi();
@@ -170,6 +242,15 @@ public class MyAccessibilityService extends AccessibilityService {
         AccessibilityNodeInfo targetNode = null;
         targetNode = findNodeInfosById(nodeInfo);
           touc(targetNode);
+    }
+
+    //执行点击
+    public  void performClickXiaomi(String msg) {
+            LogManager.e("performClickXiaomi点击执行:"+msg);
+            AccessibilityNodeInfo nodeInfo = this.getRootInActiveWindow();
+            findByTextAndClick(nodeInfo,msg);
+
+
     }
 
 

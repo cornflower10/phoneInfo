@@ -2,7 +2,11 @@
 <accessibility-service    xmlns:android="http://schemas.android.com/apk/res/android"
     android:description="@string/app_name"
     android:accessibilityEventTypes="typeNotificationStateChanged|typeWindowStateChanged"
-    android:packageNames="com.phoneinfo,com.look.xy,com.android.packageinstaller,com.android.settings"
+    android:packageNames="com.phoneinfo,
+    com.look.xy,
+    com.android.packageinstaller,
+    com.android.settings,
+    com.android.settings.MiuiSettings,com.mini.packageinstaller"
     android:accessibilityFeedbackType="feedbackGeneric"
     android:notificationTimeout="100"
     android:accessibilityFlags=""

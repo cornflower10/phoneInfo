@@ -179,4 +179,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
         }
     }
+
+    @OnClick(R.id.uninstall)
+    public void onViewClicked() {
+        Utils.uninstall(this);
+    }
 }
