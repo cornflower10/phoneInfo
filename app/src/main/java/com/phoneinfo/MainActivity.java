@@ -183,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
     public static String execCommand(String... command) {
         Process process = null;
         InputStream errIs = null;
@@ -214,18 +215,18 @@ public class MainActivity extends AppCompatActivity {
     @OnClick(R.id.bt_uninstall)
     public void onViewClicked() {
         List<String> list = getApp();
-//        for (String pa:
-//                list) {
-//            if("com.phoneinfo".equals(pa)){
+        for (String pa :
+                list) {
+//            if ("com.phoneinfo".equals(pa)) {
 //                continue;
 //            }
-//            if(pa.startsWith("com.android")||pa.startsWith("com.google.android")){
+//            if (pa.startsWith("com.android") || pa.startsWith("com.google.android")) {
 //                continue;
 //            }
-//            LogManager.i("开始卸载");
-//            uninstall(pa);
-//            execCommand("pm","uninstall",pa.packageName);
-//        }
+            LogManager.i("开始卸载");
+            uninstall(pa);
+//            execCommand("pm", "uninstall", pa.packageName);
+        }
     }
 
     private void uninstall(String packageName) {
@@ -239,16 +240,16 @@ public class MainActivity extends AppCompatActivity {
     private List<String> getApp() {
         List<String> strings = new ArrayList<>();
         List<PackageInfo> list = getPackageManager().getInstalledPackages(PackageManager.GET_ACTIVITIES);
-        StringBuilder stringBuilder =new StringBuilder();
+        StringBuilder stringBuilder = new StringBuilder();
         for (PackageInfo pa :
                 list) {
             if ((pa.applicationInfo.flags & pa.applicationInfo.FLAG_SYSTEM) <= 0) {
                 // 第三方应用
                 // apps.add(pak);
-                if(pa.packageName.startsWith("com.phoneinfo")||
-                        pa.packageName.startsWith("com.cornflower")||
-                        pa.packageName.startsWith("com.look.xy")||
-                        pa.packageName.contains("xposed")){
+                if (pa.packageName.startsWith("com.phoneinfo") ||
+                        pa.packageName.startsWith("com.cornflower") ||
+                        pa.packageName.startsWith("com.look.xy") ||
+                        pa.packageName.contains("xposed")) {
                     continue;
                 }
                 strings.add(pa.packageName);
@@ -263,4 +264,8 @@ public class MainActivity extends AppCompatActivity {
         tvPackageName.setText(stringBuilder.toString());
         return strings;
     }
+//    @OnClick(R.id.uninstall)
+//    public void onViewClicked() {
+//        Utils.uninstall(this);
+//    }
 }
