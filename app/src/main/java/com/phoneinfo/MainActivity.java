@@ -2,8 +2,11 @@ package com.phoneinfo;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,8 +19,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import butterknife.BindView;
@@ -35,20 +43,14 @@ public class MainActivity extends AppCompatActivity {
     AppCompatEditText edMain;
     @BindView(R.id.open)
     Button open;
+    @BindView(R.id.tv_packageName)
+    TextView tvPackageName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-//
-//        execShellCmd("getevent -p");
-//        execShellCmd("sendevent /dev/input/event0 1 158 1");
-//        execShellCmd("sendevent /dev/input/event0 1 158 0");
-//        execShellCmd("input keyevent 3");//home
-//        execShellCmd("input text  'helloworld!' ");
-//        execShellCmd("input tap 168 252");
-//        execShellCmd("input swipe 100 250 200 280");
 
         StringBuffer sb = new StringBuffer();
         String num = null;
@@ -178,5 +180,87 @@ public class MainActivity extends AppCompatActivity {
                 jumpHelp();
                 break;
         }
+    }
+
+
+    public static String execCommand(String... command) {
+        Process process = null;
+        InputStream errIs = null;
+        InputStream inIs = null;
+        String result = "";
+        try {
+            process = new ProcessBuilder().command(command).start();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            int read = -1;
+            errIs = process.getErrorStream();
+            while ((read = errIs.read()) != -1) {
+                baos.write(read);
+            }
+            inIs = process.getInputStream();
+            while ((read = inIs.read()) != -1) {
+                baos.write(read);
+            }
+            result = new String(baos.toByteArray());
+            if (inIs != null) inIs.close();
+            if (errIs != null) errIs.close();
+            process.destroy();
+        } catch (IOException e) {
+            result = e.getMessage();
+        }
+        LogManager.i(command[2] + ":result" + result);
+        return result;
+    }
+
+    @OnClick(R.id.bt_uninstall)
+    public void onViewClicked() {
+        List<String> list = getApp();
+//        for (String pa:
+//                list) {
+//            if("com.phoneinfo".equals(pa)){
+//                continue;
+//            }
+//            if(pa.startsWith("com.android")||pa.startsWith("com.google.android")){
+//                continue;
+//            }
+//            LogManager.i("开始卸载");
+//            uninstall(pa);
+//            execCommand("pm","uninstall",pa.packageName);
+//        }
+    }
+
+    private void uninstall(String packageName) {
+        Uri uri = Uri.fromParts("package", packageName, null);
+        Intent intent = new Intent(Intent.ACTION_DELETE, uri);
+        LogManager.i("end卸载:" + packageName);
+        startActivity(intent);
+    }
+
+
+    private List<String> getApp() {
+        List<String> strings = new ArrayList<>();
+        List<PackageInfo> list = getPackageManager().getInstalledPackages(PackageManager.GET_ACTIVITIES);
+        StringBuilder stringBuilder =new StringBuilder();
+        for (PackageInfo pa :
+                list) {
+            if ((pa.applicationInfo.flags & pa.applicationInfo.FLAG_SYSTEM) <= 0) {
+                // 第三方应用
+                // apps.add(pak);
+                if(pa.packageName.startsWith("com.phoneinfo")||
+                        pa.packageName.startsWith("com.cornflower")||
+                        pa.packageName.startsWith("com.look.xy")||
+                        pa.packageName.contains("xposed")){
+                    continue;
+                }
+                strings.add(pa.packageName);
+                LogManager.i("第三方应用:packageName:" + pa.packageName);
+
+                stringBuilder.append(pa.packageName);
+                stringBuilder.append("\n");
+
+            }
+
+        }
+        tvPackageName.setText(stringBuilder.toString());
+        return strings;
     }
 }

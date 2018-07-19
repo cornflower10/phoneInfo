@@ -76,5 +76,18 @@
         android:id="@+id/open"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
+
+    <Button
+        android:text="uninstall"
+        android:id="@+id/bt_uninstall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:id="@+id/tv_packageName"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Hello World!"
+        />
   </LinearLayout>
 </ScrollView>
