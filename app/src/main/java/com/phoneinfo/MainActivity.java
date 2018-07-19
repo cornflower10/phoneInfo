@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatEditText;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -24,6 +25,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -72,15 +74,15 @@ public class MainActivity extends AppCompatActivity {
 //
 //        getDeviceId(this, sb);
 //
-//        Field[] fields = Build.class.getDeclaredFields();
-//        for (Field field : fields) {
-//            try {
-//                field.setAccessible(true);
-//                sb.append(field.getName() + "=" + field.get(null).toString() + "\n");
-//            } catch (Exception e) {
-//                Log.e(TAG, "an error occured when collect crash info", e);
-//            }
-//        }
+        Field[] fields = Build.class.getDeclaredFields();
+        for (Field field : fields) {
+            try {
+                field.setAccessible(true);
+                sb.append(field.getName() + "=" + field.get(null).toString() + "\n");
+            } catch (Exception e) {
+                Log.e(TAG, "an error occured when collect crash info", e);
+            }
+        }
 
         TextView textView = (TextView) findViewById(R.id.tv);
         textView.setText(sb.toString());
