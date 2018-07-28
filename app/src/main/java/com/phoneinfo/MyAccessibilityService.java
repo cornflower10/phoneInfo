@@ -61,7 +61,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 //除了有根据Text找节点的方法 还有根据Id找节点的方法。考虑到众多手机rom都不一样，这里需要大家多测试一下，有的rom packageInstall
                 //定制的比较深入，可能和官方rom里差的很远 这里就要做冗余处理，可以告诉大家一个小技巧 你就把这些rom的 安装器打开 然后
                 //通过ddms里 看view结构的按钮 直接进去看就行了，可以直接看到那个界面属于哪个包名，也可以看到你要捕获的那个按钮的id是什么 很方便！
-                if("com.look.xy".equals(event.getSource().getPackageName())){
+                if("com.look.xy".equals(null==event.getSource()?"":event.getSource().getPackageName())){
                     if("com.xy.WelcomeActivity".equals(event.getClassName())){
                         findByTextAndClick(event.getSource(),"继续安装");
                         findByTextAndClick(event.getSource(),"安装");
@@ -172,28 +172,21 @@ public class MyAccessibilityService extends AccessibilityService {
 
 
     private void excu(){
-        Observable.interval(5, TimeUnit.SECONDS).subscribe(new Consumer<Long>() {
+        Observable.interval(3, TimeUnit.SECONDS).subscribe(new Consumer<Long>() {
             @Override
             public void accept(Long aLong) throws Exception {
                 String packageName  = getRootInActiveWindow().getPackageName()+"";
                 String className = getRootInActiveWindow().getClassName()+"";
                 LogManager.e("onMessageEvent--packageName:"+packageName);
                 LogManager.e("onMessageEvent--className:"+className);
-                if("com.android.packageinstaller".equals(packageName)
-                        ||"com.mini.packageinstaller".equals(packageName)){
 
-//                    if(className.contains("UninstallerActivity")){
-                        if(findByContainsText("卸载")
-                                ||findByContainsText("Uninstall")||findByContainsText("uninstall")
-                               ){
-                            performClickXiaomi("确定");
-                            performClickXiaomi("卸载");
-                            performClickXiaomi("OK");
-                            return;
-                        }
+                if(packageName.equals("com.android.phone")){
+                    if(findByContainsText("发送")
+                            &&findByContainsText("取消")
+                           ){
+                        performClickXiaomi("取消");
+                    }
                 }
-
-
                 if(findByText("允许")&&findByText("拒绝")){
                     LogManager.e("拒绝");
                     performClickXiaomi("拒绝");
@@ -204,11 +197,30 @@ public class MyAccessibilityService extends AccessibilityService {
                     performClickXiaomi("完成");
                 }
 
-                else{
+                else if(findByText("安装")&&findByText("取消")){
                     performClickXiaomi("下一步");
                     performClickXiaomi("安装");
                     performClickXiaomi("继续安装");
                     performClickXiaomi("完成");
+                }else {
+                    performClickXiaomi("下一步");
+                    performClickXiaomi("继续安装");
+                    performClickXiaomi("完成");
+                }
+
+                if("com.android.packageinstaller".equals(packageName)
+                        ||"com.mini.packageinstaller".equals(packageName)
+                        ||"com.miui.packageinstaller".equals(packageName)){
+
+//                    if(className.contains("UninstallerActivity")){
+                    if(findByContainsText("卸载")
+                            ||findByContainsText("Uninstall")||findByContainsText("uninstall")
+                            ){
+                        performClickXiaomi("确定");
+                        performClickXiaomi("卸载");
+                        performClickXiaomi("OK");
+                        return;
+                    }
                 }
 
             }

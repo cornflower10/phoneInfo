@@ -3,7 +3,6 @@ package com.phoneinfo;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -20,8 +19,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -85,7 +87,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
         TextView textView = (TextView) findViewById(R.id.tv);
-        textView.setText(sb.toString());
+        textView.setText(sb.append(getCpu()).toString());
+    }
+
+
+    public static String getCpu() {
+        StringBuffer sb = new StringBuffer();
+        try {
+            FileReader fr = new FileReader("/proc/cpuinfo");
+            BufferedReader br = new BufferedReader(fr);
+            String aLine;
+            while ((aLine = br.readLine()) != null) {
+                sb.append(aLine + "\n");
+            }
+            if (br != null) {
+                br.close();
+            }
+            return sb.toString();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     /**
@@ -241,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
 
     private List<String> getApp() {
         List<String> strings = new ArrayList<>();
-        List<PackageInfo> list = getPackageManager().getInstalledPackages(PackageManager.GET_ACTIVITIES);
+        List<PackageInfo> list = getPackageManager().getInstalledPackages(0);
         StringBuilder stringBuilder = new StringBuilder();
         for (PackageInfo pa :
                 list) {
@@ -249,9 +273,13 @@ public class MainActivity extends AppCompatActivity {
                 // 第三方应用
                 // apps.add(pak);
                 if (pa.packageName.startsWith("com.phoneinfo") ||
+                        pa.packageName.startsWith("com.tencent.mm")||
                         pa.packageName.startsWith("com.cornflower") ||
-                        pa.packageName.startsWith("com.look.xy") ||
-                        pa.packageName.contains("xposed")) {
+                        pa.packageName.startsWith("com.xiaomi") ||
+                        pa.packageName.startsWith("com.baidu") ||
+//                        pa.packageName.startsWith("com.look.xy") ||
+                        pa.packageName.contains("xposed")||
+                        pa.packageName.equals("com.lixin.hardwarecode")) {
                     continue;
                 }
                 strings.add(pa.packageName);
@@ -260,6 +288,8 @@ public class MainActivity extends AppCompatActivity {
                 stringBuilder.append(pa.packageName);
                 stringBuilder.append("\n");
 
+            }else {
+                LogManager.i("第三方应用:packageName:" + pa.packageName);
             }
 
         }
