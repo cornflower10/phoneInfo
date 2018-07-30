@@ -279,7 +279,8 @@ public class MainActivity extends AppCompatActivity {
                         pa.packageName.startsWith("com.baidu") ||
 //                        pa.packageName.startsWith("com.look.xy") ||
                         pa.packageName.contains("xposed")||
-                        pa.packageName.equals("com.lixin.hardwarecode")) {
+                        pa.packageName.equals("com.lixin.hardwarecode")||
+                        pa.packageName.equals("com.chuangdian.ipjl2")) {
                     continue;
                 }
                 strings.add(pa.packageName);
