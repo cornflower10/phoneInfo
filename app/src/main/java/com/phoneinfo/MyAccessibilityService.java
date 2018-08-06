@@ -25,7 +25,7 @@ import io.reactivex.functions.Consumer;
  */
 
 public class MyAccessibilityService extends AccessibilityService {
-    private static final String [] packageNames = {"com.mp.b","com.phoneinfo"};
+    private static final String [] packageNames = {"com.mp.b","com.phoneinfo","com.look.xy"};
     private static List<String> list = new ArrayList<>();
     public MyAccessibilityService() {
     }
