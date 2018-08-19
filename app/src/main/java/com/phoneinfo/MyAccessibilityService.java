@@ -1,10 +1,8 @@
 package com.phoneinfo;
 
 import android.accessibilityservice.AccessibilityService;
-import android.content.res.Resources;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
@@ -25,7 +23,7 @@ import io.reactivex.functions.Consumer;
  */
 
 public class MyAccessibilityService extends AccessibilityService {
-    private static final String [] packageNames = {"com.mp.b","com.phoneinfo","com.look.xy"};
+    private static final String [] packageNames = {"com.mp.b","com.phoneinfo","com.look.xy","com.hand.read"};
     private static List<String> list = new ArrayList<>();
     public MyAccessibilityService() {
     }
@@ -100,10 +98,10 @@ public class MyAccessibilityService extends AccessibilityService {
     }
     private void click(){
 
-        Resources resources = this.getResources();
-        final DisplayMetrics dm = resources.getDisplayMetrics();
-        final int width = dm.widthPixels;
-        final int height = dm.heightPixels;
+//        Resources resources = this.getResources();
+//        final DisplayMetrics dm = resources.getDisplayMetrics();
+//        final int width = dm.widthPixels;
+//        final int height = dm.heightPixels;
             Observable.timer(10, TimeUnit.SECONDS).subscribe(new Consumer<Long>() {
                 @Override
                 public void accept(Long aLong) throws Exception {
@@ -193,6 +191,8 @@ public class MyAccessibilityService extends AccessibilityService {
             public void accept(Long aLong) throws Exception {
                 String packageName  = getRootInActiveWindow().getPackageName()+"";
                 String className = getRootInActiveWindow().getClassName()+"";
+
+
                 LogManager.e("onMessageEvent--packageName:"+packageName);
                 LogManager.e("onMessageEvent--className:"+className);
                 click();
@@ -299,6 +299,19 @@ public class MyAccessibilityService extends AccessibilityService {
                 AccessibilityNodeInfo nodeIn = nodeInfo.getChild(i);
                 LogManager.e("PackageName"+nodeIn.getPackageName());
                 if(list.contains(nodeIn.getPackageName().toString())){
+                    if(list.get(3).equals(nodeIn.getPackageName().toString())){
+                        LogManager.i("eeei:"+i);
+                        AccessibilityNodeInfo accessibilityNodeInfo = nodeInfo.getChild(i);
+                        LogManager.i("eeetext:"+accessibilityNodeInfo.getText());
+                        LogManager.i("eeegetPackageName:"+accessibilityNodeInfo.getPackageName());
+                        LogManager.i("eeegetClassName:"+accessibilityNodeInfo.getClassName());
+                        LogManager.i("eeegetContentDescriptione:"+accessibilityNodeInfo.getContentDescription());
+                        if("android.widget.LinearLayout".equals(nodeInfo.getChild(i).getClassName())
+                               ){
+                            LogManager.i(nodeIn.getPackageName().toString()+":---->点击");
+                            return nodeInfo.getChild(i);
+                        }
+                    }
                     if("android.widget.ImageView".equals(nodeInfo.getChild(i).getClassName())){
 
                         LogManager.e("获取到imageView:getViewIdResourceName"+nodeIn.getViewIdResourceName());
